@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Clipboard, Save, RotateCcw, CheckCircle, FileSpreadsheet, X, Upload, Trash2, Camera, Image as ImageIcon } from 'lucide-react';
+import { Clipboard, Save, RotateCcw, CheckCircle, FileSpreadsheet, X, FileText, Image as ImageIcon } from 'lucide-react';
 
 const PelvicTestApp = () => {
-  // --- CẤU HÌNH ---
-  const DEFAULT_LOGO = "https://ui-avatars.com/api/?name=Logo&background=e0f2f1&color=00695c&size=128&length=1&font-size=0.33";
-  const LOGO_STORAGE_KEY = "pelvic_app_custom_logo_v2"; 
-
   // --- LOAD THƯ VIỆN ---
   useEffect(() => {
     const script1 = document.createElement('script');
@@ -21,7 +17,7 @@ const PelvicTestApp = () => {
   // --- DỮ LIỆU ---
   const initialData = {
     studentName: '',
-    testDate: new Date().toISOString().split('T')[0], // Lưu dạng yyyy-mm-dd cho input type="date"
+    testDate: new Date().toISOString().split('T')[0],
     pelvis: {
       left: 'Chưa xác định',
       right: 'Chưa xác định',
@@ -44,45 +40,6 @@ const PelvicTestApp = () => {
   const [formData, setFormData] = useState(initialData);
   const [showReport, setShowReport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [logo, setLogo] = useState(DEFAULT_LOGO);
-  
-  // --- LOGO ---
-  useEffect(() => {
-    const savedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
-    if (savedLogo) {
-      setLogo(savedLogo);
-    }
-  }, []);
-
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) { 
-        alert("File ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setLogo(base64String);
-        try {
-            localStorage.setItem(LOGO_STORAGE_KEY, base64String);
-        } catch (error) {
-            console.error("Lỗi lưu logo:", error);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  const resetLogo = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if(confirm("Bạn muốn xóa logo tùy chỉnh và quay về mặc định?")) {
-          setLogo(DEFAULT_LOGO);
-          localStorage.removeItem(LOGO_STORAGE_KEY);
-      }
-  };
 
   // --- HÀM ĐỊNH DẠNG NGÀY (dd/mm/yyyy) ---
   const formatDate = (dateString) => {
@@ -91,7 +48,7 @@ const PelvicTestApp = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // --- MÀU SẮC ---
+  // --- MÀU SẮC & INPUT ---
   const getStatusColor = (value) => {
     switch (value) {
       case 'Bó / Ngắn': return 'text-red-600 font-bold bg-red-50';
@@ -122,11 +79,12 @@ const PelvicTestApp = () => {
     try {
       const element = document.getElementById('report-print-area');
       
+      // Cấu hình tối ưu cho Mobile
       const canvas = await window.html2canvas(element, { 
-          scale: 3, 
+          scale: 3, // Tăng độ phân giải
           useCORS: true, 
           backgroundColor: '#ffffff',
-          windowWidth: 600, 
+          windowWidth: 600, // Đặt chiều rộng giả lập
           onclone: (clonedDoc) => {
               const clonedElement = clonedDoc.getElementById('report-print-area');
               if(clonedElement) {
@@ -176,29 +134,9 @@ const PelvicTestApp = () => {
         {/* HEADER */}
         <div className="bg-teal-700 p-3 sm:p-4 text-white flex justify-between items-center sticky top-0 z-20 shadow-md">
           <div className="flex items-center gap-3">
-            {/* Logo Upload */}
-            <label className="cursor-pointer relative group" title="Bấm để đổi logo">
-                <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                <div className="w-10 h-14 sm:w-14 sm:h-20 bg-white rounded flex items-center justify-center shadow-lg overflow-hidden relative transition-transform transform group-hover:scale-105">
-                    <img 
-                      src={logo} 
-                      alt="Logo" 
-                      className="w-full h-full object-cover" 
-                      onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_LOGO; }}
-                    />
-                    <div className="absolute inset-0 bg-black/40 hidden group-hover:flex flex-col items-center justify-center text-white text-[8px] sm:text-[10px] font-bold text-center">
-                         <Camera size={14} className="mb-1"/>
-                         ĐỔI
-                    </div>
-                    {logo !== DEFAULT_LOGO && (
-                        <button onClick={resetLogo} className="absolute bottom-0 right-0 bg-red-600 text-white p-0.5 z-20 hover:bg-red-700" title="Xóa"><Trash2 size={10} /></button>
-                    )}
-                </div>
-            </label>
-            
             <div className="flex flex-col select-none">
-              <h1 className="text-lg sm:text-2xl font-bold uppercase leading-tight tracking-wide">Cô Thư Bình An</h1>
-              <span className="text-[10px] sm:text-sm text-teal-100 uppercase tracking-widest font-medium opacity-90">Health & Balance Coach</span>
+              <h1 className="text-lg sm:text-2xl font-bold uppercase leading-tight tracking-wide">CÔ THƯ BÌNH AN</h1>
+              <span className="text-[10px] sm:text-sm text-teal-100 uppercase tracking-widest font-medium opacity-90">Bình Tâm - Trí Tuệ - Yêu Thương</span>
             </div>
           </div>
           
@@ -316,7 +254,6 @@ const PelvicTestApp = () => {
             <div className="p-2 sm:p-4 overflow-y-auto bg-slate-100 font-sans">
               
               {/* === KHU VỰC IN ẢNH === */}
-              {/* minWidth cố định để layout không vỡ khi chụp */}
               <div id="report-print-area" className="bg-white p-4 sm:p-8 shadow-sm rounded-lg mx-auto w-full" style={{minWidth: '600px'}}>
                  
                  {/* HEADER REPORT */}
@@ -336,7 +273,7 @@ const PelvicTestApp = () => {
                     </div>
                  </div>
 
-                 {/* Report Chậu - CĂN GIỮA HOÀN HẢO */}
+                 {/* Report Chậu */}
                  <div className="mb-6">
                     <h5 className="font-bold text-teal-800 mb-2 uppercase text-sm border-l-4 border-teal-600 pl-2">I. Trạng Thái Chậu</h5>
                     <div className="overflow-hidden border border-gray-400 rounded">
@@ -364,7 +301,7 @@ const PelvicTestApp = () => {
                     </div>
                  </div>
 
-                 {/* Report Cơ - CĂN GIỮA HOÀN HẢO */}
+                 {/* Report Cơ */}
                  <div className="mb-4">
                     <h5 className="font-bold text-teal-800 mb-2 uppercase text-sm border-l-4 border-teal-600 pl-2">II. Trạng Thái Cơ</h5>
                     <div className="overflow-hidden border border-gray-400 rounded">
